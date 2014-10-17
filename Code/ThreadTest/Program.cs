@@ -12,6 +12,10 @@ namespace ThreadTest
 {
     internal static class Program
     {
+        private const string tempFilePreffix = "temp_";
+
+        private static int fileIndex = 0;
+
         private static readonly string testContents = string.Join("!", Enumerable.Range(0, 1000));
 
         private static void Main()
@@ -24,6 +28,8 @@ namespace ThreadTest
                 using (var outStream = new StreamWriter(outFile))
                 {
                     outStream.WriteLine("Action, Elements count, Executor, Seconds");
+
+                    outStream.AutoFlush = true;
 
                     foreach (var count in Enumerable.Range(0, 64).Select(pow => (int)(Math.Pow(2, ((double)pow) * 2 / 4))))
                     {
@@ -38,6 +44,8 @@ namespace ThreadTest
                                 var outLine = string.Format("{0},{1},{2},{3}", action.Method.Name, count, executor.Method.Name, (long)timer.Elapsed.TotalSeconds);
                                 outStream.WriteLine(outLine);
                                 Console.Out.WriteLine(outLine);
+
+                                Directory.GetFiles(Environment.CurrentDirectory, tempFilePreffix + "*").Select(f => new FileInfo(f).FullName).ToList().ForEach(File.Delete);
                             }
                         }
                     }
@@ -74,7 +82,7 @@ namespace ThreadTest
 
             internal static void DiskLoad()
             {
-                var fileName = "temp_" + Thread.CurrentThread.ManagedThreadId;
+                var fileName = tempFilePreffix + Interlocked.Increment(ref fileIndex);
 
                 if (File.Exists(fileName))
                 {
