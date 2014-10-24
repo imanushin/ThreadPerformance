@@ -20,7 +20,15 @@ namespace ThreadTest
 
         private static void Main()
         {
-            var actions = new Action[] { /*Actions.SleepOneMinuteAction, Actions.Download5Sites, Actions.Download20Sites, */ /*Actions.Sleep5SecondsAction,*/ Actions.DiskLoad, Actions.ProcessorLoad };
+            var actions = new Action[]
+            {
+                /*Actions.SleepOneMinuteAction, Actions.Download5Sites, Actions.Download20Sites, */ /*Actions.Sleep5SecondsAction,*/ 
+                Actions.DiskLoad,
+                Actions.ProcessorLoad,
+                Actions.ProcessorLoadAndDiskLoad,
+                Actions.ProcessorLoadSleepAndDiskLoad
+            };
+
             var executors = new Action<Action, int>[] { Executors.ThreadPoolParallelExecutor, Executors.DirectThreadExecutor, Executors.PLinq };
 
             using (var outFile = File.Open("out.csv", FileMode.Create))
@@ -68,6 +76,19 @@ namespace ThreadTest
             internal static void SleepOneMinuteAction()
             {
                 Thread.Sleep(TimeSpan.FromMinutes(1));
+            }
+
+            internal static void ProcessorLoadSleepAndDiskLoad()
+            {
+                ProcessorLoad();
+                Sleep15SecondsAction();
+                DiskLoad();
+            }
+
+            internal static void ProcessorLoadAndDiskLoad()
+            {
+                ProcessorLoad();
+                DiskLoad();
             }
 
             internal static void ProcessorLoad()
